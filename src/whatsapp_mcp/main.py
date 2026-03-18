@@ -377,7 +377,9 @@ def run_server():
     port = os.environ.get("PORT")
     if port:
         # Remote/hosted mode: expose SSE endpoint on 0.0.0.0:<PORT>
-        mcp.run(transport="sse", host="0.0.0.0", port=int(port))
+        # FastMCP reads PORT automatically; set HOST so it binds to all interfaces
+        os.environ.setdefault("HOST", "0.0.0.0")
+        mcp.run(transport="sse")
     else:
         # Local mode: communicate over stdio (for Claude Desktop / Cursor)
         mcp.run()
