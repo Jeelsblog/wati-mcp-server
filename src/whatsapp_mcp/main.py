@@ -367,8 +367,20 @@ def list_channels(
 
 
 def run_server():
-    """Run the WhatsApp MCP Server."""
-    mcp.run()
+    """Run the WhatsApp MCP Server.
+
+    When the PORT environment variable is set (e.g. on Railway), the server
+    starts in SSE (HTTP) mode so it can be reached remotely via mcp-remote.
+    Otherwise it falls back to the default stdio transport for local use.
+    """
+    import os
+    port = os.environ.get("PORT")
+    if port:
+        # Remote/hosted mode: expose SSE endpoint on 0.0.0.0:<PORT>
+        mcp.run(transport="sse", host="0.0.0.0", port=int(port))
+    else:
+        # Local mode: communicate over stdio (for Claude Desktop / Cursor)
+        mcp.run()
 
 
 if __name__ == "__main__":
